@@ -23,7 +23,7 @@
           function share() {
             const message = window.location;
             navigator.clipboard.writeText(message).then(() => {
-              alert("Message copié !");
+              alertify.success("Message copié !");
             });
           }
         </script>

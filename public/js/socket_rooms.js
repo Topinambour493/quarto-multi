@@ -17,38 +17,36 @@ function getMode() {
 }
 
 
-function goGameOrEnterNickname(){
-    let nickname = localStorage.getItem('nickname')
+function goGameOrEnterNickname() {
+    let nickname = document.querySelector("input[name='nickname']").value || localStorage.getItem('nickname')
     localStorage.setItem('nickname',nickname)
-    if ( ['',null,'null'].includes(nickname) ){
-        console.log(nickname,'pk')
-        localStorage.setItem("nickname", nickname)
-        document.querySelector("#form-nickname").parentElement.style.display= "block";
+    if (!nickname || nickname === "null") {
+        document.querySelector("#form-nickname").parentElement.style.display = "block";
+        return;
+    }
+
+    inputUsername.value = nickname;
+    mode = getMode();
+
+    if (typeGame === "join room private") {
+        let nameRoom = inputNameRoom.value;
+
+        socket.emit(typeGame, nameRoom, (response) => {
+            if (response.status === 'not found') {
+                alertify.error("Salle injoignable")
+            } else {
+                window.location.pathname = nameRoom;
+            }
+        });
+
     } else {
-        console.log('ici')
-        inputUsername.value = localStorage.getItem('nickname')
-        localStorage.setItem("nickname", nickname)
-        mode = getMode();
-        if (typeGame === "'join room private'" ){
-            let nameRoom = inputNameRoom.value;
-            socket.emit(typeGame, nameRoom, (response) => {
-                if (response.status === 'not found') {
-                    alert("Could not join room. (noSuchRoom)")
-                    console.log("ui");
-                } else {
-                    window.location.pathname = nameRoom;
-                    console.log("non");
-                }
-            });
-        } else {
-            socket.emit(typeGame, mode, (response) => {
-                if (response.status === 'not found') {
-                    alert("Could not join room. (noSuchRoom)")
-                } else {
-                    window.location.pathname = response.nameRoom;
-                }
-            });
-        }
+        socket.emit(typeGame, mode, (response) => {
+            if (response.status === 'not found') {
+                alertify.error("Salle injoignable")
+            } else {
+                window.location.pathname = response.nameRoom;
+            }
+        });
     }
 }
 
